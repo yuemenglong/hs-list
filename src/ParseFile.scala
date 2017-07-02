@@ -18,11 +18,11 @@ header: ca_f_leg_00
 object ParseFile {
   val TAG = ".unity3d"
 
-  def parseFile(file: File): Array[Array[String]] = {
+  def parseFile(file: File): Array[Array[(Int, Int, String)]] = {
     val is = new FileInputStream(file)
     val buffer = Stream.continually(is.read).takeWhile(_ != -1).map(_.toByte).toArray
     var pos = 0
-    val rows = new ArrayBuffer[Array[String]]
+    val rows = new ArrayBuffer[Array[(Int, Int, String)]]
     breakable {
       while (true) {
         pos = buffer.indexOfSlice(TAG, pos)
@@ -40,11 +40,18 @@ object ParseFile {
         val items = Kit.splitBy(line, 0x09)
         if (items.length > 1) {
           require(items.length > 10)
-          rows += items.map(new String(_))
+          rows += items.map(item=>{
+            (start, end, new String(item))
+          })
         }
         pos = end
       }
     }
+    is.close()
     rows.toArray
+  }
+
+  def parseFileSimple(file: File): Array[Array[String]] ={
+    parseFile(file).map(_.map(_._3))
   }
 }

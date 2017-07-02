@@ -13,11 +13,15 @@ import scala.util.parsing.json.JSONArray
 
 object Main {
   def main(args: Array[String]): Unit = {
-    ParseFile.parseFile(new File("F:\\HoneySelect\\abdata\\list\\characustom/00.unity3d")).foreach(row=>{
-      row.foreach(item=>{
-        println(item)
-      })
-    })
+//    findAll()
+    replaceNumber()
+  }
+
+  def replaceNumber(): Unit ={
+    val map = Map[String,String](
+      "201730"->"201729"
+    )
+    ReplaceNo.replace("F:\\HoneySelect\\abdata\\list\\characustom\\fan_cos_01.unity3d", map)
   }
 
   def findDiff(): Unit = {
@@ -27,7 +31,7 @@ object Main {
     println(r1.length)
 
 
-    val writer = new PrintWriter(new File(Paths.get("D:/list/0/characustom", "diff.txt").toString))
+    val writer = new PrintWriter(new File(Paths.get("D:/list/0/characustom", "__diff.txt").toString))
     val s0: Set[String] = r0.map(_._3)(collection.breakOut)
     r1.foreach(r => {
       if (!s0.contains(r._3)) {
@@ -39,11 +43,24 @@ object Main {
     writer.close()
   }
 
-  def findDup(): Unit = {
-    val dir = "D:/list/0/characustom"
+  def findAll(): Unit = {
+    val dir = "F:\\HoneySelect\\abdata\\list\\characustom"
     val rows = parseDir(dir)
     println(rows.length)
-    val writer = new PrintWriter(new File(Paths.get(dir, "diff.txt").toString))
+    val writer = new PrintWriter(new File(Paths.get(dir, "__all.txt").toString))
+    rows.sortBy(_._2).foreach(r => {
+      println(r)
+      writer.write(JSONArray(List[String](r._2, r._3, r._4, r._1)).toString())
+      writer.write("\n")
+    })
+    writer.close()
+  }
+
+  def findDup(): Unit = {
+    val dir = "F:\\HoneySelect\\abdata\\list\\characustom"
+    val rows = parseDir(dir)
+    println(rows.length)
+    val writer = new PrintWriter(new File(Paths.get(dir, "__dup.txt").toString))
     var last: (String, String, String, String) = ("", "", "", "")
     rows.sortBy(_._2).foreach(r => {
       if (last._2 == r._2 && last._3 != r._3) {
@@ -64,7 +81,8 @@ object Main {
   def parseDir(dir: String): List[(String, String, String, String)] = {
     val rows = listFiles(dir).flatMap(file => {
       println(file)
-      ParseFile.parseFile(file).map(row => {
+      ParseFile.parseFileSimple(file).map(p => {
+        val row = p
         (file.getPath, row(0), row(2), row(4))
       })
     })
