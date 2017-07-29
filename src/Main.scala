@@ -13,15 +13,16 @@ import scala.util.parsing.json.JSONArray
 
 object Main {
   def main(args: Array[String]): Unit = {
-//    findAll()
-    replaceNumber()
+    findDup()
+    //    findAll()
+    //    replaceNumber()
   }
 
-  def replaceNumber(): Unit ={
-    val map = Map[String,String](
-      "201730"->"201729"
+  def replaceNumber(): Unit = {
+    val map = Map[String, String](
+      "205777" -> "205776"
     )
-    ReplaceNo.replace("F:\\HoneySelect\\abdata\\list\\characustom\\fan_cos_01.unity3d", map)
+    ReplaceNo.replace("F:\\HoneySelect\\abdata\\list\\characustom\\bundle01_head_list.unity3d", map)
   }
 
   def findDiff(): Unit = {
