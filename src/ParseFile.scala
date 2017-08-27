@@ -36,11 +36,11 @@ object ParseFile {
           case (-1, b) => b
           case (a, b) => Math.min(a, b)
         }
-        val line = buffer.drop(start).take(end - start)
+        val line = buffer.slice(start, end)
         val items = Kit.splitBy(line, 0x09)
         if (items.length > 1) {
           require(items.length > 10)
-          rows += items.map(item=>{
+          rows += items.map(item => {
             (start, end, new String(item))
           })
         }
@@ -51,7 +51,14 @@ object ParseFile {
     rows.toArray
   }
 
-  def parseFileSimple(file: File): Array[Array[String]] ={
+  def parseFileSimple(file: File): Array[Array[String]] = {
     parseFile(file).map(_.map(_._3))
   }
+
+  def parseFileSimpleEx(file: File): Array[Parsed] = {
+    parseFileSimple(file).map(t => {
+      Parsed(file.toString, t(0), t(2), t(4))
+    })
+  }
 }
+

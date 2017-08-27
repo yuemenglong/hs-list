@@ -1,5 +1,7 @@
 import java.io.{File, FileInputStream, FileOutputStream}
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * Created by yml on 2017/7/1.
   */
@@ -17,18 +19,25 @@ object Kit {
 
   def readFile(path: String): Array[Byte] = {
     val fs = new FileInputStream(path)
-    val ret = Stream.continually(fs.read()).takeWhile(_ != -1).map(_.toByte).toArray
+    val buffer = new Array[Byte](4096)
+    var ret = ArrayBuffer[Byte]()
+    var len = fs.read(buffer)
+    while (len >= 0) {
+      ret ++= buffer.slice(0, len)
+      len = fs.read(buffer)
+    }
+    //    val ret = Stream.continually(fs.read(buffer)).takeWhile(_ != -1).map(_.toByte).toArray
     fs.close()
-    ret
+    ret.toArray
   }
 
-  def writeFile(path: String, content: Array[Byte]) = {
+  def writeFile(path: String, content: Array[Byte]): Unit = {
     val fs = new FileOutputStream(path)
     fs.write(content)
     fs.close()
   }
 
-  def rename(from: String, to: String): Unit = {
+  def move(from: String, to: String): Unit = {
     if (!from.equals(to)) { //新的文件名和以前文件名不同时,才有必要进行重命名
       val fromFile = new File(from)
       val toFile = new File(to)
@@ -36,6 +45,19 @@ object Kit {
       require(!toFile.exists())
       fromFile.renameTo(toFile)
     }
+  }
+
+  def mkdir(path: String): Unit = {
+    val dir = new File(path)
+    dir.mkdirs()
+  }
+
+  def copy(from: String, to: String): Unit = {
+    val toFile = new File(to)
+    if (!toFile.getParentFile.exists()) {
+      mkdir(toFile.getParent)
+    }
+    writeFile(to, readFile(from))
   }
 
   def splitBySlice(buffer: Array[Byte], flag: Seq[Byte]): Array[Array[Byte]] = {
@@ -66,6 +88,18 @@ object Kit {
     } else {
       false
     }
+  }
+
+  def walkDir(path: String, fn: (File) => Object): Array[Object] = {
+    def go(file: File, fn: (File) => Object): Array[Object] = {
+      if (file.isDirectory) {
+        file.listFiles().flatMap(go(_, fn))
+      } else {
+        Array(fn(file))
+      }
+    }
+
+    go(new File(path), fn)
   }
 
 }
