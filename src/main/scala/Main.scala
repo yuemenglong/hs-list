@@ -1,10 +1,12 @@
 import java.io.{File, FileInputStream, PrintWriter}
 import java.nio.file.Paths
 
+import io.github.yuemenglong.json.JSON
+import io.github.yuemenglong.json.parse.JsonArr
+
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.Breaks._
 import scala.io.Source
-import scala.util.parsing.json.JSONArray
 
 /**
   * Created by Administrator on 2017/6/22.
@@ -36,7 +38,7 @@ object Main {
     r1.foreach(r => {
       if (!s0.contains(r._3)) {
         println(r)
-        writer.write(JSONArray(List[String](r._1, r._2, r._3, r._4)).toString())
+        writer.write(JSON.stringify(List[String](r._1, r._2, r._3, r._4)))
         writer.write("\n")
       }
     })
@@ -50,7 +52,7 @@ object Main {
     val writer = new PrintWriter(new File(Paths.get(dir, "__all.txt").toString))
     rows.sortBy(_._2).foreach(r => {
       println(r)
-      writer.write(JSONArray(List[String](r._2, r._3, r._4, r._1)).toString())
+      writer.write(JSON.stringify(List[String](r._2, r._3, r._4, r._1)))
       writer.write("\n")
     })
     writer.close()
@@ -67,9 +69,9 @@ object Main {
         println(last)
         println(r)
         println()
-        writer.write(JSONArray(List[String](last._1, last._2, last._3, last._4)).toString())
+        writer.write(JSON.stringify(Array[String](last._1, last._2, last._3, last._4)))
         writer.write("\n")
-        writer.write(JSONArray(List[String](r._1, r._2, r._3, r._4)).toString())
+        writer.write(JSON.stringify(Array[String](r._1, r._2, r._3, r._4)))
         writer.write("\n")
         writer.write("\n")
       }
@@ -89,7 +91,7 @@ object Main {
     val file = new File(Paths.get(dir, "list.txt").toString)
     val writer = new PrintWriter(file)
     rows.foreach(row => {
-      writer.write(JSONArray(List[String](row._1, row._2, row._3, row._4)).toString())
+      writer.write(JSON.stringify(List[String](row._1, row._2, row._3, row._4)))
       writer.write("\n")
     })
     writer.close()

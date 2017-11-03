@@ -15,12 +15,30 @@ object Kit {
     }
   }
 
-  def readFile(path: String): Array[Byte] = {
+  def readFile2(path: String): Array[Byte] = {
     val fs = new FileInputStream(path)
     val ret = Stream.continually(fs.read()).takeWhile(_ != -1).map(_.toByte).toArray
     fs.close()
     ret
   }
+
+  def readFile(path: String): Array[Byte] = {
+    val fs = new FileInputStream(path)
+    val ret = Stream.continually({
+      val buffer = new Array[Byte](4096)
+      (fs.read(buffer), buffer)
+    }).takeWhile(_._1 >= 0).flatMap(p => p._2.take(p._1)).toArray
+    fs.close()
+    ret
+  }
+
+  val charSet: Set[Char] = """`~!@#$%^&*()_+=-{}|[]\"':;?><,./""".toSet
+
+  def isPrintable(c: Char): Boolean =
+    '0' <= c && c <= '9' ||
+      'a' <= c && c <= 'z' ||
+      'A' <= c && c <= 'Z' ||
+      charSet.contains(c)
 
   def writeFile(path: String, content: Array[Byte]) = {
     val fs = new FileOutputStream(path)
