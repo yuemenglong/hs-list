@@ -1,5 +1,7 @@
 import java.io.{File, FileInputStream, FileOutputStream}
 
+import scala.reflect.ClassTag
+
 /**
   * Created by yml on 2017/7/1.
   */
@@ -12,6 +14,14 @@ object Kit {
       case _ =>
         val spl = buffer.splitAt(pos)
         Array(spl._1) ++ splitBy(spl._2.drop(1), flag)
+    }
+  }
+
+  def scan[T: ClassTag](dir: File, fn: (File) => T): Array[T] = {
+    if (dir.isDirectory) {
+      dir.listFiles().flatMap(scan(_, fn))
+    } else {
+      Array(fn(dir))
     }
   }
 
@@ -32,6 +42,16 @@ object Kit {
     ret
   }
 
+  def readFile(file: File): Array[Byte] = {
+    val fs = new FileInputStream(file)
+    val ret = Stream.continually({
+      val buffer = new Array[Byte](4096)
+      (fs.read(buffer), buffer)
+    }).takeWhile(_._1 >= 0).flatMap(p => p._2.take(p._1)).toArray
+    fs.close()
+    ret
+  }
+
   val charSet: Set[Char] = """`~!@#$%^&*()_+=-{}|[]\"':;?><,./""".toSet
 
   def isPrintable(c: Char): Boolean =
@@ -40,7 +60,7 @@ object Kit {
       'A' <= c && c <= 'Z' ||
       charSet.contains(c)
 
-  def writeFile(path: String, content: Array[Byte]) = {
+  def writeFile(path: String, content: Array[Byte]): Unit = {
     val fs = new FileOutputStream(path)
     fs.write(content)
     fs.close()

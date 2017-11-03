@@ -108,7 +108,7 @@ object Main {
       return List(file)
     }
     if (file.isDirectory) {
-      file.listFiles().map(listFiles).flatten.toList
+      file.listFiles().flatMap(listFiles).toList
     } else {
       List()
     }

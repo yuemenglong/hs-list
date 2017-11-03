@@ -36,7 +36,7 @@ object ParseFile {
           case (-1, b) => b
           case (a, b) => Math.min(a, b)
         }
-        val line = buffer.drop(start).take(end - start)
+        val line = buffer.slice(start, start + end - start)
         val items = Kit.splitBy(line, 0x09)
         if (items.length > 1) {
           require(items.length > 10)
