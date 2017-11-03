@@ -1,12 +1,9 @@
-import java.io.{File, FileInputStream, PrintWriter}
+package bean
+
+import java.io.{File, PrintWriter}
 import java.nio.file.Paths
 
 import io.github.yuemenglong.json.JSON
-import io.github.yuemenglong.json.parse.JsonArr
-
-import scala.collection.mutable.ArrayBuffer
-import scala.util.control.Breaks._
-import scala.io.Source
 
 /**
   * Created by Administrator on 2017/6/22.

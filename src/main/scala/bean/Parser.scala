@@ -1,7 +1,7 @@
-import java.io.{File, FileInputStream}
-import java.nio.file.{Files, Paths}
+package bean
 
-import io.github.yuemenglong.json.JSON
+import java.io.File
+
 import io.github.yuemenglong.orm.lang.anno.{Entity, Id}
 import io.github.yuemenglong.orm.lang.types.Types._
 
@@ -33,8 +33,7 @@ class Mod {
   override def toString: String = s"$no $ty $name $dir $u3d"
 }
 
-
-object Parse2 {
+object Parser {
 
   def findUnity(content: Array[Byte], from: Int): Int = {
     content.indexOfSlice(".unity3d", from)
@@ -112,6 +111,13 @@ object Parse2 {
         null
       }
     }).filter(_ != null)
+  }
+
+  def findMod(dir: String): Array[Mod] = {
+    Kit.scan(new File(dir), f => {
+      println(f.getName)
+      findMod(Kit.readFile(f))
+    }).flatten
   }
 
   def main(args: Array[String]): Unit = {

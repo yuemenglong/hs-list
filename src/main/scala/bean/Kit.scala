@@ -1,3 +1,5 @@
+package bean
+
 import java.io.{File, FileInputStream, FileOutputStream}
 
 import scala.reflect.ClassTag
