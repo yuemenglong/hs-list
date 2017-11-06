@@ -1,10 +1,14 @@
 package web
 
+import bean.Parser
+import io.github.yuemenglong.json.JSON
+import io.github.yuemenglong.template.<
 import io.github.yuemenglong.template.HTML._
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{RequestMapping, ResponseBody}
+import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, ResponseBody}
 
 import scala.io.Source
 
@@ -16,6 +20,9 @@ import scala.io.Source
 @Controller
 @RequestMapping(Array(""))
 class App {
+
+  @Value("${dir}")
+  var dir: String = _
 
   @ResponseBody
   @RequestMapping(Array(""))
@@ -30,13 +37,21 @@ class App {
         <.script(src = "//cdn.bootcss.com/lodash.js/4.12.0/lodash.js").>,
         <.script(src = "//cdn.bootcss.com/moment.js/2.18.1/moment.js").>,
         <.script(src = "//cdn.bootcss.com/bluebird/3.5.0/bluebird.js").>,
+        <.link(ty = "text/css", rel = "stylesheet", href = "https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css").>
       ),
-      <.body.>(
+      <.body(className = "").>(
         <.div(id = "root").>,
         <.script(ty = "text/babel").>(js)
       )
     )
     html.toString()
+  }
+
+  @ResponseBody
+  @RequestMapping(value = Array("/mods"), method = Array(RequestMethod.GET), produces = Array("application/json"))
+  def getMods: String = {
+    val mods = Parser.findMods(dir)
+    JSON.stringify(mods)
   }
 
 }

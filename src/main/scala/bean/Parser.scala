@@ -27,10 +27,11 @@ class Mod {
   var ty: String = _
   var name: String = _
   var dir: String = _
-  var u3d: String = _
+  var list: String = _
+  var data: String = _
   var start: Integer = _
 
-  override def toString: String = s"$no $ty $name $dir $u3d"
+  override def toString: String = s"$no $ty $name $dir $data $list"
 }
 
 object Parser {
@@ -67,7 +68,7 @@ object Parser {
         mod.ty = items(1)
         mod.name = items(2)
         mod.dir = items(3)
-        mod.u3d = items(4)
+        mod.data = items(4)
         mod.start = m.start + 1
         mod
       }
@@ -91,7 +92,7 @@ object Parser {
         mod.no = items(0)
         mod.ty = items(1)
         mod.name = items(2)
-        mod.u3d = items(3)
+        mod.data = items(3)
         mod.dir = "_"
         mod.start = start
         mod
@@ -101,7 +102,7 @@ object Parser {
         mod.ty = items(1)
         mod.name = items(2)
         mod.dir = items(3)
-        mod.u3d = items(4)
+        mod.data = items(4)
         mod.start = start
         mod
       } else {
@@ -113,14 +114,21 @@ object Parser {
     }).filter(_ != null)
   }
 
-  def findMod(dir: String): Array[Mod] = {
+  def findMods(dir: String): Array[Mod] = {
     Kit.scan(new File(dir), f => {
-      println(f.getName)
-      findMod(Kit.readFile(f))
-    }).flatten
+      if (!f.getName.endsWith(".unity3d")) {
+        Array[Mod]()
+      } else {
+        findMod(Kit.readFile(f)).map(m => {
+          m.list = f.getName
+          m
+        })
+      }
+    }).flatten.sortBy(_.no)
   }
 
   def main(args: Array[String]): Unit = {
+    findMods("D:/list/0/characustom").foreach(println)
     //    val bs = Kit.readFile("D:/list/0/characustom/00.unity3d")
     //    val s = new String(bs).map(c => {
     //      if (Kit.isPrintable(c) || c.toInt >= 128) c
@@ -129,11 +137,11 @@ object Parser {
     //    Kit.writeFile("str.txt", s.getBytes())
     //    Kit.writeFile("str.txt", s.getBytes())
 
-    val res = Kit.scan(new File("D:\\list\\0\\characustom"), f => {
-      println(f.getName)
-      findMod(Kit.readFile(f))
-    }).flatten
-    res.filter(m => m.dir == "").foreach(println)
+    //    val res = Kit.scan(new File("D:\\list\\0\\characustom"), f => {
+    //      println(f.getName)
+    //      findMod(Kit.readFile(f))
+    //    }).flatten
+    //    res.filter(m => m.dir == "").foreach(println)
 
     //    val uri = Thread.currentThread().getContextClassLoader.getResource("zeaska mod package1.unity3d").toURI
     //    val content = Kit.readFile(uri.getPath)
