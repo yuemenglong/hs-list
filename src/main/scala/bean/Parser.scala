@@ -31,14 +31,10 @@ class Mod {
   var data: String = _
   var start: Integer = _
 
-  override def toString: String = s"$no $ty $name $dir $data $list"
+  override def toString: String = f"$no $ty $name $list $dir $data $start%X"
 }
 
 object Parser {
-
-  def findUnity(content: Array[Byte], from: Int): Int = {
-    content.indexOfSlice(".unity3d", from)
-  }
 
   def normalize(data: Array[Byte]): String = {
     data.map(_.toChar).map(c =>
@@ -77,7 +73,7 @@ object Parser {
 
   def findMod(data: Array[Byte]): Array[Mod] = {
     val re =
-      """ \d{6,} .+?\.unity3d""".r
+      """ \d{6,} .+?\.unity\.?3d""".r
     val nre = """ \d{6,} """.r
     val nor = normalize(data)
     re.findAllMatchIn(nor).toArray.map(m => {
@@ -114,7 +110,7 @@ object Parser {
     }).filter(_ != null)
   }
 
-  def findMods(dir: String): Array[Mod] = {
+  def findDirMod(dir: String): Array[Mod] = {
     Kit.scan(new File(dir), f => {
       if (!f.getName.endsWith(".unity3d")) {
         Array[Mod]()
@@ -127,8 +123,58 @@ object Parser {
     }).flatten.sortBy(_.no)
   }
 
+  def diffMod(m1: Array[Mod], m2: Array[Mod]): Array[Mod] = {
+    val map1 = m1.map(m => (m.name, m)).toMap
+    val map2 = m2.map(m => (m.name, m)).toMap
+    val diffSet = map2.keySet.diff(map1.keySet)
+    diffSet.map(map2(_)).toArray.sortBy(_.no)
+  }
+
+  def modifyNo(path: String, from: String, to: String): Unit = {
+    // 先备份
+    val bak = Stream.from(0)
+      .map(i => s"$path.bak$i")
+      .find(p => !new File(p).exists()).get
+    val content = Kit.readFile(path)
+    val mods = findMod(content)
+    val target = mods.find(_.no == from).get
+    to.getBytes.zipWithIndex.foreach { case (b: Byte, i: Int) =>
+      val idx = target.start + i
+      require(content(idx) == from(i))
+      println(content(idx).toChar, b.toChar)
+      content(idx) = b
+    }
+    println(path, bak)
+    Kit.rename(path, bak)
+    Kit.writeFile(path, content)
+
+    //    val target = mods.find(_.no = from).get
+
+    //    val matches = ParseFile.parseFile(new File(path)).filter(rows => {
+    //      map.contains(rows(0)._3)
+    //    })
+    //    if (matches.length == 0) {
+    //      return
+    //    }
+    //    matches.foreach(rows => {
+    //      val oldSeq = rows(0)._3
+    //      val newSeq = map(oldSeq)
+    //      val start = rows(0)._1
+    //      for (i <- 0 until oldSeq.length) {
+    //        val oldVal = content(start + i)
+    //        val newVal = newSeq(i).toByte
+    //        println(oldVal, newVal)
+    //        println(f"$oldVal%c, $newVal%c")
+    //        content(start + i) = newVal
+    //      }
+    //    })
+
+  }
+
   def main(args: Array[String]): Unit = {
-    findMods("D:/list/0/characustom").foreach(println)
+    val m1 = findDirMod("D:/list/0/characustom")
+    val m2 = findDirMod("D:/list/1/characustom")
+    diffMod(m1, m2).foreach(println)
     //    val bs = Kit.readFile("D:/list/0/characustom/00.unity3d")
     //    val s = new String(bs).map(c => {
     //      if (Kit.isPrintable(c) || c.toInt >= 128) c

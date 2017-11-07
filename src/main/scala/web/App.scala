@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, ResponseBody}
+import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, ResponseBody}
 
 import scala.io.Source
 
@@ -24,10 +24,15 @@ class App {
   @Value("${dir}")
   var dir: String = _
 
+  @Value("${dir1}")
+  var dir1: String = _
+
+
   @ResponseBody
   @RequestMapping(Array(""))
   def index(): String = {
-    val js = Source.fromInputStream(App.getClass.getClassLoader.getResourceAsStream("index.jsx")).getLines().mkString("\n")
+
+    val js = Source.fromInputStream(App.getClass.getClassLoader.getResourceAsStream("mods.jsx")).getLines().mkString("\n")
     val html = <.html.>(
       <.head.>(
         <.script(src = "//cdn.bootcss.com/jquery/2.2.3/jquery.js").>,
@@ -50,10 +55,25 @@ class App {
   @ResponseBody
   @RequestMapping(value = Array("/mods"), method = Array(RequestMethod.GET), produces = Array("application/json"))
   def getMods: String = {
-    val mods = Parser.findMods(dir)
+    val mods = Parser.findDirMod(s"$dir/abdata/list/characustom")
     JSON.stringify(mods)
   }
 
+  @ResponseBody
+  @RequestMapping(value = Array("/diff"), method = Array(RequestMethod.GET), produces = Array("application/json"))
+  def getDiff: String = {
+    val m0 = Parser.findDirMod(s"$dir/abdata/list/characustom")
+    val m1 = Parser.findDirMod(s"$dir1/abdata/list/characustom")
+    val diff = Parser.diffMod(m0, m1)
+    JSON.stringify(diff)
+  }
+
+  @ResponseBody
+  @RequestMapping(value = Array("/list/{name}"), method = Array(RequestMethod.PUT))
+  def changeNo(@PathVariable name: String, from: String, to: String): Unit = {
+    val path = s"$dir/abdata/list/characustom/$name.unity3d"
+    Parser.modifyNo(path, from, to)
+  }
 }
 
 object App {

@@ -7,7 +7,7 @@ class App extends React.Component {
 
     componentDidMount() {
         $.ajax({
-            url: "/mods",
+            url: `/${this.mode()}`,
             type: "GET",
             success: (res) => {
                 this.setState({mods: res})
@@ -23,8 +23,13 @@ class App extends React.Component {
         return <tr>{ths}</tr>
     }
 
+    mode() {
+        let filter = _.fromPairs((location.search || "").slice(1).split("&").map(s => s.split("=")));
+        return filter.mode || "mods"
+    }
+
     renderBody() {
-        let mods = _.sortBy(this.state.mods, m => m.no);
+        let mods = this.state.mods;
         // noinspection UnnecessaryLocalVariableJS
         let body = mods.map((mod, idx) => {
             let onChange = (e) => {
@@ -32,18 +37,31 @@ class App extends React.Component {
                 state.mods[idx]._no = e.target.value;
                 this.setState(state)
             };
-            let onSubmit = () => {
+            let onSubmitChangeNo = () => {
+                if (mod.no.length !== mod._no.length) {
+                    throw  Error("Length Not Match")
+                }
                 $.ajax({
-                    url: `/mod?list=${mod.list}&no=${mod.no}`,
+                    url: `/list/${mod.list}?from=${mod.no}&to=${this.state.mods[idx]._no}`,
                     type: "PUT",
-                    data: JSON.stringify({no: this.state.mods[idx]._no}),
                     success: () => {
+                        let state = _.cloneDeep(this.state);
+                        state.mods[idx].no = state.mods[idx]._no;
+                        state.mods[idx]._no = "";
+                        this.setState(state)
                     },
                     error: (err) => {
                         alert(err.responseText)
                     }
                 })
             };
+            let onSubmitCopyMod = () => {
+
+            };
+            let onSubmit = {
+                "mods": onSubmitChangeNo,
+                "diff": onSubmitCopyMod,
+            }[this.mode()];
             let dup = <td key="dup">
                 {idx > 0 && mod.no === mods[idx - 1].no && mod.name !== mods[idx - 1].name ? "<+>" : ""}
             </td>;
@@ -52,7 +70,7 @@ class App extends React.Component {
                 return <td key={name}>{mod[name]}</td>
             });
             let op = <td key="op">
-                <input type="text" onChange={onChange}/>
+                <input type="text" value={mod._no || ""} onChange={onChange}/>
                 <a onClick={onSubmit}>修改</a>
             </td>;
             return <tr key={idx}>{_.flatten([dup, seq, tds, op])}</tr>
