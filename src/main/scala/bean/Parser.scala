@@ -1,6 +1,7 @@
 package bean
 
 import java.io.File
+import java.nio.file.Paths
 
 import io.github.yuemenglong.orm.lang.anno.{Entity, Id}
 import io.github.yuemenglong.orm.lang.types.Types._
@@ -171,10 +172,38 @@ object Parser {
 
   }
 
+  def fileExists(path: String): Boolean = {
+    new File(path).exists()
+  }
+
+  def pickupMod(hsDir: String, modDir: String, backupDir: String): Unit = {
+    if (new File(backupDir).exists()) {
+      throw new RuntimeException(s"备份路径已经存在, $backupDir")
+    }
+    if (!fileExists(Paths.get(modDir, "abdata").toString)) {
+      throw new RuntimeException(s"HS路径下没有abdata, $hsDir")
+    }
+    if (!fileExists(Paths.get(modDir, "abdata").toString)) {
+      throw new RuntimeException(s"Mod路径下没有abdata, $modDir")
+    }
+    val modRoot = Paths.get(modDir)
+    val hsRoot = Paths.get(hsDir)
+    val backupRoot = Paths.get(backupDir)
+    Kit.scan(new File(modDir), file => {
+      val rel = modRoot.relativize(Paths.get(file.getAbsolutePath)).toString
+      val hsPath = hsRoot.resolve(rel).toString
+      val backupPath = backupRoot.resolve(rel).toString
+      if (fileExists(hsPath)) {
+        println(s"""$hsPath -> $backupPath""")
+        Kit.copy(hsPath, backupPath)
+      } else {
+        println(s"""$hsPath Not Exists""")
+      }
+    })
+  }
+
   def main(args: Array[String]): Unit = {
-    val m1 = findDirMod("D:/list/0/characustom")
-    val m2 = findDirMod("D:/list/1/characustom")
-    diffMod(m1, m2).foreach(println)
+    pickupMod("D:/hs/h0", "D:/hs/mod", "D:/hs/backup/mod-1")
     //    val bs = Kit.readFile("D:/list/0/characustom/00.unity3d")
     //    val s = new String(bs).map(c => {
     //      if (Kit.isPrintable(c) || c.toInt >= 128) c

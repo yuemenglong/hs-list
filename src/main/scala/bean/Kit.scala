@@ -68,6 +68,11 @@ object Kit {
     fs.close()
   }
 
+  def copy(from: String, to: String): Unit = {
+    new File(to).getParentFile.mkdirs()
+    writeFile(to, readFile(from))
+  }
+
   def rename(from: String, to: String): Unit = {
     if (!from.equals(to)) { //新的文件名和以前文件名不同时,才有必要进行重命名
       val fromFile = new File(from)
