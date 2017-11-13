@@ -80,6 +80,10 @@ class App extends React.Component {
 
     render() {
         return <div>
+            <div>
+                <a href="/?mode=mods">mods</a>
+                <a href="/?mode=diff">diff</a>
+            </div>
             <table className="table">
                 <thead>
                 {this.renderHead()}
