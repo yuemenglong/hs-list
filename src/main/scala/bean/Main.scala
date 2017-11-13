@@ -1,8 +1,15 @@
+package bean
+
 import java.io.{File, PrintWriter}
 import java.nio.file.Paths
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.parsing.json.JSONArray
+import java.io.{File, PrintWriter}
+import java.nio.file.Paths
+
+import io.github.yuemenglong.json.JSON
+
 
 /**
   * Created by Administrator on 2017/6/22.
@@ -26,7 +33,7 @@ object Main {
     val p0 = "F:\\HoneySelect"
     val p1 = "G:\\HS\\整合\\【糖糖游戏-甜心12.0】\\HoneySelect4K.12.0\\HoneySelect4K"
     //    val p1 = "G:\\HS\\整合\\hsv12\\HoneySelect1.1O"
-    CopyListAndData.go(p1, p0, "ash_set_01.unity3d")
+//    CopyListAndData.go(p1, p0, "ash_set_01.unity3d")
   }
 
   def replaceNumber(): Unit = {
@@ -130,9 +137,7 @@ object Main {
         println(last)
         println(r)
         println()
-        writer.write(JSONArray(List[String](last._1, last._2, last._3, last._4)).toString())
-        writer.write("\n")
-        writer.write(JSONArray(List[String](r._1, r._2, r._3, r._4)).toString())
+        writer.write(JSON.stringify(Array[String](last._1, last._2, last._3, last._4)))
         writer.write("\n")
         writer.write("\n")
       }
@@ -153,7 +158,7 @@ object Main {
     val file = new File(Paths.get(dir, "__list.txt").toString)
     val writer = new PrintWriter(file)
     rows.foreach(row => {
-      writer.write(JSONArray(List[String](row._1, row._2, row._3, row._4)).toString())
+      writer.write(JSON.stringify(List[String](row._1, row._2, row._3, row._4)))
       writer.write("\n")
     })
     writer.close()

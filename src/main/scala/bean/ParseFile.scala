@@ -1,3 +1,5 @@
+package bean
+
 import java.io.{File, FileInputStream}
 
 import scala.collection.mutable.ArrayBuffer

@@ -1,3 +1,5 @@
+package bean
+
 import java.io.File
 
 /**
@@ -9,7 +11,7 @@ object ReplaceNo {
     val bak = Stream.from(0)
       .map(i => s"$path.bak$i")
       .find(p => !new File(p).exists()).get
-    val content = Kit.readFile(path)
+    val content = Kit.readFile2(path)
     val matches = ParseFile.parseFile(new File(path)).filter(rows => {
       map.contains(rows(0)._3)
     })
@@ -28,7 +30,7 @@ object ReplaceNo {
         content(start + i) = newVal
       }
     })
-    Kit.move(path, bak)
+    Kit.rename(path, bak)
     Kit.writeFile(path, content)
   }
 }

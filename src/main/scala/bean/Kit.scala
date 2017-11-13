@@ -1,6 +1,9 @@
+package bean
+
 import java.io.{File, FileInputStream, FileOutputStream}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.reflect.ClassTag
 
 /**
   * Created by yml on 2017/7/1.
@@ -17,7 +20,15 @@ object Kit {
     }
   }
 
-  def readFile(path: String): Array[Byte] = {
+  def scan[T: ClassTag](dir: File, fn: (File) => T): Array[T] = {
+    if (dir.isDirectory) {
+      dir.listFiles().flatMap(scan(_, fn))
+    } else {
+      Array(fn(dir))
+    }
+  }
+
+  def readFile2(path: String): Array[Byte] = {
     val fs = new FileInputStream(path)
     val buffer = new Array[Byte](4096)
     var ret = ArrayBuffer[Byte]()
@@ -31,13 +42,46 @@ object Kit {
     ret.toArray
   }
 
+  def readFile(path: String): Array[Byte] = {
+    val fs = new FileInputStream(path)
+    val ret = Stream.continually({
+      val buffer = new Array[Byte](4096)
+      (fs.read(buffer), buffer)
+    }).takeWhile(_._1 >= 0).flatMap(p => p._2.take(p._1)).toArray
+    fs.close()
+    ret
+  }
+
+  def readFile(file: File): Array[Byte] = {
+    val fs = new FileInputStream(file)
+    val ret = Stream.continually({
+      val buffer = new Array[Byte](4096)
+      (fs.read(buffer), buffer)
+    }).takeWhile(_._1 >= 0).flatMap(p => p._2.take(p._1)).toArray
+    fs.close()
+    ret
+  }
+
+  val charSet: Set[Char] = """`~!@#$%^&*()_+=-{}|[]\"':;?><,./""".toSet
+
+  def isPrintable(c: Char): Boolean =
+    '0' <= c && c <= '9' ||
+      'a' <= c && c <= 'z' ||
+      'A' <= c && c <= 'Z' ||
+      charSet.contains(c)
+
   def writeFile(path: String, content: Array[Byte]): Unit = {
     val fs = new FileOutputStream(path)
     fs.write(content)
     fs.close()
   }
 
-  def move(from: String, to: String): Unit = {
+  def copy(from: String, to: String): Unit = {
+    new File(to).getParentFile.mkdirs()
+    writeFile(to, readFile(from))
+  }
+
+  def rename(from: String, to: String): Unit = {
     if (!from.equals(to)) { //新的文件名和以前文件名不同时,才有必要进行重命名
       val fromFile = new File(from)
       val toFile = new File(to)
@@ -50,14 +94,6 @@ object Kit {
   def mkdir(path: String): Unit = {
     val dir = new File(path)
     dir.mkdirs()
-  }
-
-  def copy(from: String, to: String): Unit = {
-    val toFile = new File(to)
-    if (!toFile.getParentFile.exists()) {
-      mkdir(toFile.getParent)
-    }
-    writeFile(to, readFile(from))
   }
 
   def splitBySlice(buffer: Array[Byte], flag: Seq[Byte]): Array[Array[Byte]] = {
