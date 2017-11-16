@@ -78,7 +78,24 @@ object Kit {
 
   def copy(from: String, to: String): Unit = {
     new File(to).getParentFile.mkdirs()
-    writeFile(to, readFile(from))
+    require(exists(from))
+    require(!exists(to))
+    val is = new FileInputStream(from)
+    val os = new FileOutputStream(to)
+    val buffer = new Array[Byte](4096)
+    var ret = 0
+    while (ret >= 0) {
+      ret = is.read(buffer)
+      if (ret > 0) {
+        os.write(buffer, 0, ret)
+      }
+    }
+    is.close()
+    os.close()
+  }
+
+  def exists(path: String): Boolean = {
+    new File(path).exists()
   }
 
   def rename(from: String, to: String): Unit = {

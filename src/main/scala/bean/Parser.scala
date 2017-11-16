@@ -197,7 +197,7 @@ object Parser {
   }
 
   def main(args: Array[String]): Unit = {
-    pickupMod("D:/hs/h0", "D:/hs/mod", "D:/hs/backup/mod-1")
+    pickupMod("D:/hs/h0", "D:/hs/mod", "D:/hs/backup/mod-0")
     //    val bs = Kit.readFile("D:/list/0/characustom/00.unity3d")
     //    val s = new String(bs).map(c => {
     //      if (Kit.isPrintable(c) || c.toInt >= 128) c

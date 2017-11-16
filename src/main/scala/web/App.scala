@@ -2,7 +2,7 @@ package web
 
 import bean.Parser
 import io.github.yuemenglong.json.JSON
-import io.github.yuemenglong.template.<
+import io.github.yuemenglong.template.HTML.<
 import io.github.yuemenglong.template.Converts._
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
