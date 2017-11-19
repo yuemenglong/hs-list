@@ -59,7 +59,7 @@
         <dependency>
             <groupId>io.github.yuemenglong</groupId>
             <artifactId>scala-json</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.6-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.github.yuemenglong</groupId>

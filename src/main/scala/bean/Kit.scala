@@ -1,6 +1,7 @@
 package bean
 
 import java.io.{File, FileInputStream, FileOutputStream}
+import java.nio.file.Paths
 
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
@@ -60,6 +61,10 @@ object Kit {
     }).takeWhile(_._1 >= 0).flatMap(p => p._2.take(p._1)).toArray
     fs.close()
     ret
+  }
+
+  def resolve(dir: String, paths: String*): String = {
+    Paths.get(dir, paths: _*).toString
   }
 
   val charSet: Set[Char] = """`~!@#$%^&*()_+=-{}|[]\"':;?><,./""".toSet

@@ -125,52 +125,34 @@ object Parser {
     diffSet.map(map2(_)).toArray.sortBy(_.no)
   }
 
-  def modifyNo(path: String, from: String, to: String): Unit = {
+  def modifyNos(path: String, pairs: Array[(String, String)]): Unit = {
     // 先备份
     val bak = Stream.from(0)
       .map(i => s"$path.bak$i")
       .find(p => !new File(p).exists()).get
     val content = Kit.readFile(path)
     val mods = findMod(content)
-    val target = mods.find(_.no == from).get
-    to.getBytes.zipWithIndex.foreach { case (b: Byte, i: Int) =>
-      val idx = target.start + i
-      require(content(idx) == from(i))
-      println(content(idx).toChar, b.toChar)
-      content(idx) = b
+    pairs.foreach { case (from, to) =>
+      val target = mods.find(_.no == from).get
+      to.getBytes.zipWithIndex.foreach { case (b: Byte, i: Int) =>
+        val idx = target.start + i
+        require(content(idx) == from(i))
+        print(content(idx).toChar, b.toChar)
+        content(idx) = b
+      }
+      println()
     }
     println(path, bak)
     Kit.rename(path, bak)
     Kit.writeFile(path, content)
-
-    //    val target = mods.find(_.no = from).get
-
-    //    val matches = ParseFile.parseFile(new File(path)).filter(rows => {
-    //      map.contains(rows(0)._3)
-    //    })
-    //    if (matches.length == 0) {
-    //      return
-    //    }
-    //    matches.foreach(rows => {
-    //      val oldSeq = rows(0)._3
-    //      val newSeq = map(oldSeq)
-    //      val start = rows(0)._1
-    //      for (i <- 0 until oldSeq.length) {
-    //        val oldVal = content(start + i)
-    //        val newVal = newSeq(i).toByte
-    //        println(oldVal, newVal)
-    //        println(f"$oldVal%c, $newVal%c")
-    //        content(start + i) = newVal
-    //      }
-    //    })
-
+    println("SUCC")
   }
 
   def fileExists(path: String): Boolean = {
     new File(path).exists()
   }
 
-  def pickupMod(hsDir: String, modDir: String, backupDir: String): Unit = {
+  def backupMod(hsDir: String, modDir: String, backupDir: String): Unit = {
     if (new File(backupDir).exists()) {
       throw new RuntimeException(s"备份路径已经存在, $backupDir")
     }
@@ -197,9 +179,9 @@ object Parser {
   }
 
   def main(args: Array[String]): Unit = {
-//    pickupMod("D:/hs/h0", "D:/hs/mod", "D:/hs/backup/mod-0")
-    pickupMod("F:/HoneySelect", "D:\\Game\\HoneySelectMod\\_mods\\梦精灵一周年大礼包",
-      "D:/Game/HoneySelectMod/backup/梦精灵一周年大礼包")
+    //    pickupMod("D:/hs/h0", "D:/hs/mod", "D:/hs/backup/mod-0")
+    backupMod("F:/HoneySelect", "D:\\Game\\HoneySelectMod\\4K\\HS Image Based Lighting 4.3\\HS Image Based Lighting 4.3\\HS Image Based Lighting 4.3",
+      "D:/Game/HoneySelectMod/backup/HS Image Based Lighting 4.3")
     //    val bs = Kit.readFile("D:/list/0/characustom/00.unity3d")
     //    val s = new String(bs).map(c => {
     //      if (Kit.isPrintable(c) || c.toInt >= 128) c

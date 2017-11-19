@@ -33,9 +33,14 @@ class App extends React.Component {
         // noinspection UnnecessaryLocalVariableJS
         let body = mods.map((mod, idx) => {
             let onChange = (e) => {
-                let state = _.cloneDeep(this.state);
-                state.mods[idx]._no = e.target.value;
-                this.setState(state)
+                let mods = this.state.mods.map((m, i) => {
+                    if (idx === i) {
+                        return _.defaults({_no: e.target.value}, m)
+                    } else {
+                        return m
+                    }
+                });
+                this.setState({mods})
             };
             let onSubmitChangeNo = () => {
                 if (mod.no.length !== mod._no.length) {
@@ -78,12 +83,49 @@ class App extends React.Component {
         return body;
     }
 
+    renderSelected() {
+        let selected = this.state.mods.filter(m => !!m._no);
+        let onClick = () => {
+            let data = selected.map(m => {
+                return [m.list, m.no, m._no]
+            });
+            $.ajax({
+                url: "/list",
+                type: "PUT",
+                data: JSON.stringify(data),
+                success: () => {
+                    let mods = this.state.mods.map(m => {
+                        if (!m._no) {
+                            return m
+                        } else {
+                            return _.defaults({no: m._no, _no: ""}, m)
+                        }
+                    });
+                    this.setState({mods})
+                }
+            })
+        };
+        return <div>
+            <table className="table">
+                <tbody>
+                {selected.map(mod => {
+                    return <tr>{["no", "name", "list", "data", "_no"].map(name => {
+                        return <td key={name}>{mod[name]}</td>
+                    })}</tr>
+                })}
+                </tbody>
+            </table>
+            <button className="btn btn-primary" onClick={onClick}>确认</button>
+        </div>
+    }
+
     render() {
         return <div>
             <div>
                 <a href="/?mode=mods">mods</a>
                 <a href="/?mode=diff">diff</a>
             </div>
+            {this.renderSelected()}
             <table className="table">
                 <thead>
                 {this.renderHead()}
