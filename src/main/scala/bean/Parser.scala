@@ -152,11 +152,13 @@ object Parser {
     new File(path).exists()
   }
 
-  def backupMod(hsDir: String, modDir: String, backupDir: String): Unit = {
-    if (new File(backupDir).exists()) {
-      throw new RuntimeException(s"备份路径已经存在, $backupDir")
+  def backupMod(hsDir: String, backupDir: String, modDir: String): Unit = {
+    val fileDir = Paths.get(modDir).getFileName.toString
+    val backupFileDir = Paths.get(backupDir, fileDir).toString
+    if (fileExists(backupFileDir)) {
+      throw new RuntimeException(s"备份路径已经存在, $backupFileDir")
     }
-    if (!fileExists(Paths.get(modDir, "abdata").toString)) {
+    if (!fileExists(Paths.get(hsDir, "abdata").toString)) {
       throw new RuntimeException(s"HS路径下没有abdata, $hsDir")
     }
     if (!fileExists(Paths.get(modDir, "abdata").toString)) {
@@ -164,11 +166,11 @@ object Parser {
     }
     val modRoot = Paths.get(modDir)
     val hsRoot = Paths.get(hsDir)
-    val backupRoot = Paths.get(backupDir)
+    val backupFileRoot = Paths.get(backupFileDir)
     Kit.scan(new File(modDir), file => {
       val rel = modRoot.relativize(Paths.get(file.getAbsolutePath)).toString
       val hsPath = hsRoot.resolve(rel).toString
-      val backupPath = backupRoot.resolve(rel).toString
+      val backupPath = backupFileRoot.resolve(rel).toString
       if (fileExists(hsPath)) {
         println(s"""$hsPath -> $backupPath""")
         Kit.copy(hsPath, backupPath)
@@ -178,10 +180,18 @@ object Parser {
     })
   }
 
+  def mergeAbdata(dir:String): Unit ={
+    val dest = Paths.get(dir,"abdata").toString
+    require(Kit.exists(dest))
+
+  }
+
   def main(args: Array[String]): Unit = {
     //    pickupMod("D:/hs/h0", "D:/hs/mod", "D:/hs/backup/mod-0")
-    backupMod("F:/HoneySelect", "D:\\Game\\HoneySelectMod\\4K\\HS Image Based Lighting 4.3\\HS Image Based Lighting 4.3\\HS Image Based Lighting 4.3",
-      "D:/Game/HoneySelectMod/backup/HS Image Based Lighting 4.3")
+    backupMod("F:/HoneySelect",
+      "D:/Game/HoneySelectMod/backup",
+      "D:\\Game\\HoneySelectMod\\pastebin.com Honey Select\\Highly Recommended Mods & Add-on\\HS_Mouth_Mod\\Dr.FG_Mouth_Mod"
+    )
     //    val bs = Kit.readFile("D:/list/0/characustom/00.unity3d")
     //    val s = new String(bs).map(c => {
     //      if (Kit.isPrintable(c) || c.toInt >= 128) c
