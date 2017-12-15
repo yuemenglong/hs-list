@@ -3,10 +3,10 @@ package web
 import java.io.File
 import java.nio.file.Paths
 
-import bean.{Kit, Parser}
+import bean.{Kit, Mod, Parser}
 import io.github.yuemenglong.json.JSON
-import io.github.yuemenglong.template.HTML.<
 import io.github.yuemenglong.template.Converts._
+import io.github.yuemenglong.template.HTML.<
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -31,8 +31,7 @@ class App {
   @Value("${dir1}")
   var baseDir1: String = _
 
-  def renderJs(jsPath: String): String = {
-    val js = Source.fromInputStream(App.getClass.getClassLoader.getResourceAsStream(jsPath)).getLines().mkString("\n")
+  def render(inner: String): String = {
     val html = <.html.>(
       <.head.>(
         <.script(src = "//cdn.bootcss.com/jquery/2.2.3/jquery.js").>,
@@ -44,23 +43,47 @@ class App {
         <.script(src = "//cdn.bootcss.com/bluebird/3.5.0/bluebird.js").>,
         <.link(ty = "text/css", rel = "stylesheet", href = "https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css").>
       ),
-      <.body(className = "").>(
-        <.div(id = "root").>,
-        <.script(ty = "text/babel").>(js)
-      )
+      <.body(className = "").>(inner)
     )
-    html.toString()
+    html.toString
   }
 
-  @GetMapping(Array("/"))
-  def index: String = {
-    "Index"
-  }
 
   @ResponseBody
-  @RequestMapping(value = Array("/v/mods"), produces = Array("text/html"))
-  def viewMod(): String = {
-    renderJs("mods.jsx")
+  @RequestMapping(value = Array(""), produces = Array("text/html"))
+  def index(): String = {
+    val js = Source.fromInputStream(Thread.currentThread().getContextClassLoader.getResourceAsStream("mod.jsx")).getLines().mkString("\n")
+    val mods = Parser.findDirMod(s"$baseDir/abdata/list/characustom")
+    val dupMap: Map[String, Array[Mod]] = mods.groupBy(_.no)
+    val content = <.div.>(
+      <.script(ty = "text/babel").>(js),
+      <.div.>(
+        <.a(id = "refresh").>("刷新"),
+        <.a(id = "submit").>("提交"),
+        <.div(id = "need-change").>,
+      ),
+      <.table(className = "table").>(
+        mods.zipWithIndex.map { case (m, idx) =>
+          val dup = dupMap(m.no).length > 1 match {
+            case true => "<+>"
+            case false => ""
+          }
+          <.tr.>(
+            <.td.>(dup),
+            <.td.>(idx),
+            <.td.>(m.no),
+            <.td.>(m.name),
+            <.td.>(m.list),
+            <.td.>(m.data),
+            <.td(className = "op").>(
+              <.input(ty = "text").>,
+              <.a.>("确定")
+            ),
+          )
+        }
+      )
+    )
+    render(content.toString())
   }
 
   @ResponseBody
