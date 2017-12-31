@@ -69,16 +69,16 @@ class App {
             case false => ""
           }
           <.tr.>(
-            <.td.>(dup),
+            <.td(className = "dup").>(dup),
             <.td.>(idx),
-            <.td.>(m.no),
-            <.td.>(m.name),
-            <.td.>(m.list),
-            <.td.>(m.data),
+            <.td(className = "no").>(m.no),
             <.td(className = "op").>(
               <.input(ty = "text").>,
               <.a.>("确定")
             ),
+            <.td(className = "name").>(m.name),
+            <.td(className = "list").>(m.list),
+            <.td(className = "data").>(m.data),
           )
         }
       )
@@ -105,6 +105,9 @@ class App {
   @ResponseBody
   @RequestMapping(value = Array("/list/{name}"), method = Array(RequestMethod.PUT))
   def changeNo(@PathVariable name: String, from: String, to: String): Unit = {
+    require(from.length >= 6)
+    require(to.length >= 6)
+    require(name.length >= 2)
     val path = s"$baseDir/abdata/list/characustom/$name.unity3d"
     Parser.modifyNos(path, Array((from, to)))
   }
@@ -116,6 +119,11 @@ class App {
     arr.map(t => (t(0), (t(1), t(2)))).groupBy(_._1).foreach { case (name, a) =>
       val path = s"$baseDir/abdata/list/characustom/$name"
       val ps = a.map(_._2)
+      require(name.length >= 2)
+      ps.foreach { case (from, to) =>
+        require(from.length >= 6)
+        require(to.length >= 6)
+      }
       Parser.modifyNos(path, ps)
     }
   }

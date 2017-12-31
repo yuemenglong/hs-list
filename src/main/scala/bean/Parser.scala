@@ -180,17 +180,18 @@ object Parser {
     })
   }
 
-  def mergeAbdata(dir:String): Unit ={
-    val dest = Paths.get(dir,"abdata").toString
+  def mergeAbdata(dir: String): Unit = {
+    val dest = Paths.get(dir, "abdata").toString
     require(Kit.exists(dest))
 
   }
 
   def main(args: Array[String]): Unit = {
     //    pickupMod("D:/hs/h0", "D:/hs/mod", "D:/hs/backup/mod-0")
+    val modPath = "D:\\BaiduNetdiskDownload\\[转帖] 衣服和一些朵品（听起来像淘宝 ( ′ ▽ ` ) )[15图]-clothes 2\\Daydream_tattoo_pack\\操门那只英雄hs正式版纹身摸底";
     backupMod("F:/HoneySelect",
       "D:/Game/HoneySelectMod/backup",
-      "D:\\Game\\HoneySelectMod\\pastebin.com Honey Select\\Highly Recommended Mods & Add-on\\HS_Mouth_Mod\\Dr.FG_Mouth_Mod"
+      modPath,
     )
     //    val bs = Kit.readFile("D:/list/0/characustom/00.unity3d")
     //    val s = new String(bs).map(c => {

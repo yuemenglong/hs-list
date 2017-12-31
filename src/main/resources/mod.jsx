@@ -10,20 +10,20 @@ $(() => {
     $("td.op>a").unbind();
     $("td.op>a").click(function () {
         let tr = $(this).parent().parent();
-        let name = $(tr.children()[4]).text();
-        let from = $(tr.children()[2]).text();
-        let to = $(tr.find(".op>input")[0]).val();
+        let list = tr.find(".list").text();
+        let from = tr.find(".no").text();
+        let to = tr.find(".op>input").val();
         if (!check(to)) {
             return;
         }
         $.ajax({
-            url: `/list/${name}?from=${from}&to=${to}`,
+            url: `/list/${list}?from=${from}&to=${to}`,
             type: "PUT",
             data: "{}",
             success: () => {
-                $(tr.children()[0]).text("");
-                $(tr.children()[2]).text(to);
-                $(tr.find(".op>input")[0]).val("");
+                tr.find(".dup").text("");
+                tr.find(".no").text(to);
+                tr.find(".op>input").val("");
             }
         })
     });
@@ -32,16 +32,16 @@ $(() => {
         needChange = [];
         $("tr").each(function () {
             let tr = $(this);
-            let list = $(tr.children()[4]).text();
-            let from = $(tr.children()[2]).text();
-            let to = $(tr.find(".op>input")[0]).val();
+            let list = tr.find(".list").text();
+            let from = tr.find(".no").text();
+            let to = tr.find(".op>input").val();
             if (to.length > 5 && check(to)) {
                 needChange.push({list, from, to})
             }
         });
         console.log(needChange);
         let text = needChange.map(m => {
-            return `<div>${m.name} ${m.from} ${m.to}</div>`
+            return `<div>${m.list} ${m.from} ${m.to}</div>`
         }).join("");
         $("#need-change").html(text)
     });
@@ -52,7 +52,7 @@ $(() => {
         }
         $.ajax({
             url: `/list`,
-            type: "POST",
+            type: "PUT",
             data: JSON.stringify(needChange),
             success: () => {
                 needChange = [];
