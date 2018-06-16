@@ -4,7 +4,6 @@ import java.io.{File, PrintWriter}
 import java.nio.file.Paths
 
 import scala.collection.mutable.ArrayBuffer
-import scala.util.parsing.json.JSONArray
 import java.io.{File, PrintWriter}
 import java.nio.file.Paths
 
@@ -61,7 +60,7 @@ object Main {
     r1.foreach(r => {
       if (!s0.contains(r.name) && Paths.get(p1, "abdata", r.abdata).toFile.exists()) {
         println(r)
-        writer.write(JSONArray(List[String](r.id, r.name, r.list, r.abdata)).toString())
+        writer.write(JSON.stringify(List[String](r.id, r.name, r.list, r.abdata)).toString())
         writer.write("\n")
       }
     })
@@ -120,7 +119,7 @@ object Main {
         writer.write(" -- ")
       }
       println(r)
-      writer.write(JSONArray(List[String](r.id, r.name, r.list, r.abdata)).toString())
+      writer.write(JSON.stringify(List[String](r.id, r.name, r.list, r.abdata)).toString())
       writer.write("\n")
     })
     writer.close()
